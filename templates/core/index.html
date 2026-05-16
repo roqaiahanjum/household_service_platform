@@ -1,0 +1,473 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}HomeCare - Premium Household Services{% endblock %}
+
+{% block extra_css %}
+<!-- AOS Animation CSS -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<!-- Google Fonts for How It Works -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+    .font-poppins { font-family: 'Poppins', sans-serif !important; }
+    .font-inter { font-family: 'Inter', sans-serif !important; }
+    
+    .how-it-works-section {
+        background-color: #f8f9fa;
+        position: relative;
+    }
+    
+    .step-card {
+        position: relative;
+        padding: 3rem 1.5rem;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        height: 100%;
+    }
+    
+    .step-number {
+        font-size: 12rem;
+        font-weight: 800;
+        color: rgba(219, 39, 119, 0.05);
+        position: absolute;
+        top: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 0;
+        line-height: 1;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .step-icon-wrapper {
+        width: 100px;
+        height: 100px;
+        background-color: #fce7f3;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 10px 25px -5px rgba(219, 39, 119, 0.3);
+        transition: transform 0.3s ease;
+    }
+    
+    .step-card:hover .step-icon-wrapper {
+        transform: translateY(-8px) scale(1.05);
+    }
+    
+    .step-icon {
+        font-size: 3rem;
+        color: #db2777;
+    }
+    
+    .step-heading {
+        color: #1e293b;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        z-index: 2;
+        position: relative;
+    }
+    
+    .step-desc {
+        color: #64748b;
+        font-size: 1.1rem;
+        z-index: 2;
+        position: relative;
+    }
+    
+    .step-arrow {
+        position: absolute;
+        top: 35%;
+        right: -30px;
+        font-size: 3rem;
+        color: rgba(219, 39, 119, 0.3);
+        z-index: 0;
+    }
+    
+    @media (max-width: 991px) {
+        .step-arrow {
+            display: none;
+        }
+    }
+
+    /* Why Choose Us Section Styles */
+    .feature-card {
+        background-color: #ffffff;
+        border-radius: 1rem;
+        padding: 2.5rem 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        text-align: center;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .feature-icon-wrapper {
+        width: 70px;
+        height: 70px;
+        background-color: #fce7f3;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .feature-icon {
+        font-size: 2rem;
+        color: #db2777;
+    }
+    
+    .feature-heading {
+        color: #1e293b;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .feature-desc {
+        color: #64748b;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-5 overflow-hidden" style="background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%);">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h1 class="display-3 mb-4">Your Home, <span class="text-primary">Our Care.</span></h1>
+                <p class="lead text-secondary mb-4">Connect with verified professionals for cleaning, cooking, nursing, and childcare. Reliable, secure, and professional services at your doorstep.</p>
+                
+                <div class="card p-3 shadow-sm border-0 mb-4" style="border-radius: 1rem; max-width: 500px; background: rgba(255,255,255,0.9);">
+                    <form action="{% url 'home' %}" method="get" class="d-flex gap-2">
+                        <select name="area" class="form-select form-select-lg border-0 bg-light" onchange="this.form.submit()">
+                            <option value="">Select Your Area in Belagaum</option>
+                            {% for area in areas %}
+                            <option value="{{ area.id }}" {% if selected_area and selected_area.id == area.id %}selected{% endif %}>{{ area.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-lg px-4"><i class="bi bi-search"></i></button>
+                    </form>
+                    {% if selected_area %}
+                        <div class="mt-3 text-success fw-bold d-flex align-items-center">
+                            <i class="bi bi-geo-alt-fill me-2 fs-5"></i> Serving in {{ selected_area.name }} 
+                            <span class="badge bg-success ms-auto fs-6">{{ expert_count }} experts available</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'services:category_list' %}" class="btn btn-primary btn-lg px-5 shadow-sm">Book a Service</a>
+                    <a href="{% url 'accounts:worker_signup' %}" class="btn btn-outline-dark btn-lg px-4">Join as Professional</a>
+                </div>
+                <div class="mt-4 d-flex align-items-center">
+                    <div class="d-flex me-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <span class="fw-bold">4.9/5 Rating by 10k+ Users</span>
+                </div>
+            </div>
+            <div class="col-lg-6 mt-5 mt-lg-0 text-center" data-aos="fade-left" data-aos-delay="200">
+                <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cleaning Service" class="img-fluid rounded-5 shadow-lg">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5">Our Popular Services</h2>
+            <p class="text-secondary">Expert help for every home need, at transparent prices.</p>
+        </div>
+        <div class="row g-4">
+            {% for service in services %}
+            <div class="col-12 col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{% cycle '100' '200' '300' %}">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    {% if service.image %}
+                        <img src="{{ service.image.url }}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="{{ service.name }}">
+                    {% else %}
+                        <div class="bg-primary text-white d-flex align-items-center justify-content-center" style="height: 220px;">
+                            <i class="bi bi-tools display-1"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h4 class="mb-0 fw-bold">{{ service.name }}</h4>
+                            <span class="badge bg-primary text-white rounded-pill px-3 py-2 fs-6 shadow-sm">₹{{ service.price_per_unit }}/{{ service.unit_name }}</span>
+                        </div>
+                        <p class="text-secondary mb-4 flex-grow-1">{{ service.description|truncatechars:120 }}</p>
+                        <a href="{% url 'services:service_detail' slug=service.slug %}" class="btn btn-outline-primary w-100 rounded-pill fw-bold py-2 mt-auto">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center" data-aos="fade-up">
+                <p>No services available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5 how-it-works-section overflow-hidden">
+    <div class="container py-5">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 font-poppins fw-bold">How It Works</h2>
+            <p class="text-secondary font-inter fs-5">Get your home services sorted in three simple steps.</p>
+        </div>
+        <div class="row position-relative g-4">
+            <!-- Step 1 -->
+            <div class="col-lg-4 col-md-12" data-aos="fade-up" data-aos-delay="100">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon-wrapper">
+                        <i class="bi bi-search step-icon"></i>
+                    </div>
+                    <h4 class="font-poppins fw-bold step-heading">Choose Your Service</h4>
+                    <p class="font-inter step-desc">Browse and select from our verified services</p>
+                    <div class="step-arrow d-none d-lg-block">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Step 2 -->
+            <div class="col-lg-4 col-md-12" data-aos="fade-up" data-aos-delay="300">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon-wrapper">
+                        <i class="bi bi-calendar-check step-icon"></i>
+                    </div>
+                    <h4 class="font-poppins fw-bold step-heading">Book Instantly</h4>
+                    <p class="font-inter step-desc">Pick date, time and duration in seconds</p>
+                    <div class="step-arrow d-none d-lg-block">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Step 3 -->
+            <div class="col-lg-4 col-md-12" data-aos="fade-up" data-aos-delay="500">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon-wrapper">
+                        <i class="bi bi-person-badge step-icon"></i>
+                    </div>
+                    <h4 class="font-poppins fw-bold step-heading">Expert At Your Door</h4>
+                    <p class="font-inter step-desc">Trained verified expert arrives on time</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Work Gallery Section -->
+{% if latest_photos %}
+<section class="py-5 bg-dark text-white">
+    <div class="container py-5">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 font-poppins fw-bold">See The Difference We Make</h2>
+            <p class="text-light opacity-75 font-inter fs-5">Real results from real homes in Belagavi</p>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            {% for photo in latest_photos %}
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{% cycle '100' '200' '300' '100' '200' '300' %}">
+                <div class="card border-0 shadow-sm bg-transparent">
+                    <div style="border-radius: 1rem; overflow: hidden;">
+                        <img-comparison-slider>
+                            <img slot="first" src="{{ photo.before_photo.url }}" style="width: 100%; height: 250px; object-fit: cover;" alt="Before">
+                            <img slot="second" src="{{ photo.after_photo.url }}" style="width: 100%; height: 250px; object-fit: cover;" alt="After">
+                            <div slot="first" style="position: absolute; bottom: 1rem; left: 1rem; background: rgba(0,0,0,0.6); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">BEFORE</div>
+                            <div slot="second" style="position: absolute; bottom: 1rem; right: 1rem; background: rgba(0,0,0,0.6); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">AFTER</div>
+                        </img-comparison-slider>
+                    </div>
+                    <div class="mt-3 px-2">
+                        <h5 class="fw-bold font-poppins text-white mb-1">{{ photo.booking.service.name }}</h5>
+                        {% if photo.booking.customer.area %}
+                        <small class="text-light opacity-75"><i class="bi bi-geo-alt-fill text-primary"></i> {{ photo.booking.customer.area.name }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5" data-aos="fade-up">
+            <a href="{% url 'gallery' %}" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold">View All Work</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Customer Reviews Section -->
+<section class="py-5 bg-white">
+    <div class="container py-5">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <div class="d-inline-flex align-items-center bg-light rounded-pill px-4 py-2 mb-3">
+                <i class="bi bi-star-fill text-warning me-2"></i>
+                <span class="fw-bold">4.8 ★ · Trusted in Belagavi</span>
+            </div>
+            <h2 class="display-5 font-poppins fw-bold">What Our Customers Say</h2>
+            <p class="text-secondary font-inter fs-5">Real reviews from households in Belagavi</p>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            {% for review in reviews %}
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{% cycle '100' '200' '300' %}">
+                <div class="card h-100 border-0 shadow-sm review-card" style="border-radius: 1rem;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="review-avatar bg-primary text-white d-flex align-items-center justify-content-center rounded-circle fw-bold fs-4 me-3" style="width: 50px; height: 50px;">
+                                {{ review.profile_initial }}
+                            </div>
+                            <div>
+                                <h5 class="mb-0 fw-bold">{{ review.customer_name }}</h5>
+                                <div class="text-secondary small">{{ review.city }}</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                <i class="bi bi-star-fill text-warning"></i>
+                                {% else %}
+                                <i class="bi bi-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="card-text text-secondary fst-italic mb-3">"{{ review.text }}"</p>
+                        <div class="mt-auto">
+                            <span class="badge bg-light text-dark border">{{ review.service_name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center" data-aos="fade-up">
+                <p>No reviews available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5">
+    <div class="container py-5">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5">What can we help with?</h2>
+            <p class="text-secondary">Choose from our wide range of professional categories.</p>
+        </div>
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-md-4 col-lg-3" data-aos="fade-up" data-aos-delay="{% cycle '100' '200' '300' '400' %}">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    {% if category.image %}
+                        <img src="{{ category.image.url }}" class="card-img-top category-img" style="height: 160px;" alt="{{ category.name }}">
+                    {% endif %}
+                    <div class="card-body p-4">
+                        {% if not category.image %}
+                        <div class="mb-3">
+                            <i class="bi {{ category.icon_class }} fs-1 text-primary"></i>
+                        </div>
+                        {% endif %}
+                        <h4 class="mb-3">{{ category.name }}</h4>
+                        <p class="text-secondary small mb-0">{{ category.description }}</p>
+                    </div>
+                    <a href="{% url 'services:category_list' %}" class="stretched-link"></a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center" data-aos="fade-up">
+                <p>No categories available yet. Please check back later!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Our Platform Section -->
+<section class="py-5 bg-white">
+    <div class="container py-5">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 font-poppins fw-bold">Why Choose HomeCare?</h2>
+            <p class="text-secondary font-inter fs-5">We bring the best professionals directly to you.</p>
+        </div>
+        <div class="row g-4">
+            <!-- Card 1 -->
+            <div class="col-lg-3 col-md-6 col-12" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="bi bi-shield-check feature-icon"></i>
+                    </div>
+                    <h4 class="font-poppins fw-bold feature-heading">100% Verified Experts</h4>
+                    <p class="font-inter feature-desc">Every provider is background checked and Aadhaar verified before joining</p>
+                </div>
+            </div>
+            <!-- Card 2 -->
+            <div class="col-lg-3 col-md-6 col-12" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="bi bi-clock feature-icon"></i>
+                    </div>
+                    <h4 class="font-poppins fw-bold feature-heading">Book in 10 Minutes</h4>
+                    <p class="font-inter feature-desc">Instant booking with confirmed expert assigned immediately</p>
+                </div>
+            </div>
+            <!-- Card 3 -->
+            <div class="col-lg-3 col-md-6 col-12" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="bi bi-currency-rupee feature-icon"></i>
+                    </div>
+                    <h4 class="font-poppins fw-bold feature-heading">Transparent Pricing</h4>
+                    <p class="font-inter feature-desc">Starting ₹99/hr with no hidden charges ever</p>
+                </div>
+            </div>
+            <!-- Card 4 -->
+            <div class="col-lg-3 col-md-6 col-12" data-aos="fade-up" data-aos-delay="400">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="bi bi-star-fill feature-icon"></i>
+                    </div>
+                    <h4 class="font-poppins fw-bold feature-heading">Top Rated Service</h4>
+                    <p class="font-inter feature-desc">4.8 star rated with 70,000+ happy customers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- AOS Animation JS -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 50
+        });
+    });
+</script>
+{% endblock %}

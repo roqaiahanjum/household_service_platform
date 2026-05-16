@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker Dashboard - HomeCare{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-bg { background-color: #f8fafc; }
+    .profile-card {
+        border-radius: 20px;
+        background: linear-gradient(145deg, #ffffff, #f3f4f6);
+        border: 1px solid rgba(255,255,255,0.8);
+    }
+    .stat-card {
+        border-radius: 16px;
+        color: white;
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover { transform: translateY(-3px); }
+    
+    .bg-gradient-primary { background: linear-gradient(135deg, #db2777, #9d174d); }
+    .bg-gradient-success { background: linear-gradient(135deg, #10b981, #047857); }
+    .bg-gradient-info { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+
+    .booking-card {
+        border-left: 4px solid #db2777;
+    }
+    .booking-card.completed { border-left-color: #10b981; opacity: 0.8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-bg min-vh-100 py-5">
+    <div class="container">
+        <h2 class="mb-4 font-poppins">Dashboard Overview</h2>
+        
+        <div class="row g-4">
+            <!-- Sidebar / Profile -->
+            <div class="col-lg-4">
+                <div class="card profile-card shadow-sm p-4 text-center mb-4">
+                    <div class="position-relative d-inline-block mx-auto mb-3">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle border border-4 border-white shadow-sm" width="120" height="120" style="object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary border border-4 border-white shadow-sm mx-auto" style="width: 120px; height: 120px; font-size: 3rem;">
+                                <i class="bi bi-person-badge"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <h4 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="text-secondary small mb-2">Professional Worker</p>
+                    
+                    <div class="mb-4">
+                        <span class="badge bg-success rounded-pill px-3 py-2"><i class="bi bi-patch-check-fill me-1"></i> Verified</span>
+                        <span class="ms-2 text-warning fw-bold"><i class="bi bi-star-fill"></i> {{ user.worker_profile.average_rating|default:"4.8" }}</span>
+                    </div>
+
+                    <!-- Profile Completion -->
+                    <div class="text-start mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small fw-bold text-secondary">Profile Completion</span>
+                            <span class="small fw-bold text-primary">85%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary rounded-pill" role="progressbar" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    
+                    <hr class="opacity-25">
+                    
+                    <div class="text-start text-secondary small mb-4">
+                        <p class="mb-2"><i class="bi bi-tools me-2 text-primary"></i> <strong>Skills:</strong> {{ user.worker_profile.skills }}</p>
+                        <p class="mb-2"><i class="bi bi-briefcase me-2 text-primary"></i> <strong>Experience:</strong> {{ user.worker_profile.experience_years }} Years</p>
+                        <p class="mb-0"><i class="bi bi-cash me-2 text-primary"></i> <strong>Rate:</strong> ₹{{ user.worker_profile.base_rate_per_hour }}/hr</p>
+                    </div>
+
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-dark btn-sm rounded-pill w-100 fw-bold">Edit Profile</a>
+                </div>
+
+                <!-- Recent Reviews Mini-Widget -->
+                <div class="card shadow-sm p-4 border-0">
+                    <h5 class="fw-bold mb-3 font-poppins"><i class="bi bi-chat-quote text-primary me-2"></i> Recent Feedback</h5>
+                    <div class="border-bottom border-light pb-3 mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold small">Ravi Kumar</span>
+                            <span class="text-warning small">★★★★★</span>
+                        </div>
+                        <p class="text-secondary small mb-0 fst-italic">"Excellent and on time service!"</p>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold small">Aisha S.</span>
+                            <span class="text-warning small">★★★★★</span>
+                        </div>
+                        <p class="text-secondary small mb-0 fst-italic">"Very professional and polite."</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                
+                <!-- Earnings Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card stat-card bg-gradient-info shadow-sm p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-1 opacity-75 small text-uppercase fw-bold">Today</p>
+                                    <h3 class="fw-bold mb-0">₹{{ today_earnings }}</h3>
+                                </div>
+                                <i class="bi bi-wallet2 fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stat-card bg-gradient-primary shadow-sm p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-1 opacity-75 small text-uppercase fw-bold">This Week</p>
+                                    <h3 class="fw-bold mb-0">₹{{ week_earnings }}</h3>
+                                </div>
+                                <i class="bi bi-graph-up-arrow fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stat-card bg-gradient-success shadow-sm p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-1 opacity-75 small text-uppercase fw-bold">This Month</p>
+                                    <h3 class="fw-bold mb-0">₹{{ month_earnings }}</h3>
+                                </div>
+                                <i class="bi bi-bank fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Jobs -->
+                <h4 class="fw-bold mb-3 mt-5 font-poppins">Today's Tasks</h4>
+                {% for booking in todays_bookings %}
+                    <div class="card booking-card shadow-sm p-4 mb-3 border-0 {% if booking.status == 'COMPLETED' %}completed{% endif %}">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 me-2">{{ booking.status }}</span>
+                                    <span class="text-secondary small fw-bold"><i class="bi bi-clock me-1"></i> {{ booking.scheduled_datetime|time:"g:i A" }}</span>
+                                </div>
+                                <h5 class="fw-bold mb-1">{{ booking.service.name }}</h5>
+                                
+                                <!-- Expanded Customer Details -->
+                                <div class="mt-3 p-3 bg-light rounded-3">
+                                    <p class="mb-1 small"><i class="bi bi-person text-primary me-2"></i> <strong>{{ booking.customer.get_full_name }}</strong></p>
+                                    <p class="mb-1 small"><i class="bi bi-telephone text-primary me-2"></i> {{ booking.customer.phone_number|default:"Not provided" }}</p>
+                                    <p class="mb-0 small"><i class="bi bi-geo-alt text-primary me-2"></i> {{ booking.address }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <h4 class="fw-bold text-primary mb-3">₹{{ booking.total_price }}</h4>
+                                
+                                <!-- Dynamic Action Buttons based on Status -->
+                                {% if booking.status == 'PENDING' or booking.status == 'ASSIGNED' %}
+                                    <form action="{% url 'bookings:status_update' booking.pk %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="CONFIRMED">
+                                        <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-bold"><i class="bi bi-check-lg me-1"></i> Accept</button>
+                                    </form>
+                                    <form action="{% url 'bookings:status_update' booking.pk %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="CANCELLED">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold ms-1">Reject</button>
+                                    </form>
+                                
+                                {% elif booking.status == 'CONFIRMED' %}
+                                    <form action="{% url 'bookings:status_update' booking.pk %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="ON_THE_WAY">
+                                        <button type="submit" class="btn btn-info text-white rounded-pill w-100 fw-bold"><i class="bi bi-truck me-1"></i> On the Way</button>
+                                    </form>
+                                
+                                {% elif booking.status == 'ON_THE_WAY' %}
+                                    <form action="{% url 'bookings:status_update' booking.pk %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="IN_PROGRESS">
+                                        <button type="submit" class="btn btn-warning text-dark rounded-pill w-100 fw-bold"><i class="bi bi-play-fill me-1"></i> Start Job</button>
+                                    </form>
+                                
+                                {% elif booking.status == 'IN_PROGRESS' %}
+                                    <form action="{% url 'bookings:status_update' booking.pk %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="COMPLETED">
+                                        <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Mark Done</button>
+                                    </form>
+                                
+                                {% elif booking.status == 'COMPLETED' %}
+                                    <button class="btn btn-outline-success rounded-pill w-100 fw-bold disabled mb-2"><i class="bi bi-check-all me-1"></i> Completed</button>
+                                    {% if not booking.has_photos %}
+                                    <a href="{% url 'bookings:upload_photos' booking.pk %}" class="btn btn-primary btn-sm rounded-pill w-100 fw-bold"><i class="bi bi-camera"></i> Upload Photos</a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="card shadow-sm p-5 text-center border-0 bg-white mb-4">
+                        <div class="mb-3 text-secondary" style="font-size: 3rem;"><i class="bi bi-cup-hot"></i></div>
+                        <h5 class="fw-bold font-poppins">No Tasks Today</h5>
+                        <p class="text-secondary">You don't have any bookings scheduled for today. Enjoy your day off or update your availability!</p>
+                    </div>
+                {% endfor %}
+                
+                <!-- View All Link -->
+                <div class="text-center mb-5">
+                    <a href="{% url 'bookings:booking_list' %}" class="btn btn-outline-dark rounded-pill px-4 fw-bold">View All Past & Upcoming Jobs</a>
+                </div>
+
+                <!-- Your Portfolio Section -->
+                <h4 class="fw-bold mb-3 mt-4 font-poppins"><i class="bi bi-images text-primary me-2"></i>Your Portfolio</h4>
+                <div class="card shadow-sm p-4 border-0 mb-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="text-secondary">Showcase your completed jobs</span>
+                        <span class="badge bg-success rounded-pill px-3 py-2">{{ approved_photos_count }} Approved</span>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Job</th>
+                                    <th>Uploaded</th>
+                                    <th>Status</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for photo in portfolio_photos %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ photo.booking.service.name }}</strong><br>
+                                        <small class="text-secondary">B{{ photo.booking.id }}</small>
+                                    </td>
+                                    <td>{{ photo.uploaded_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if photo.is_approved %}
+                                            <span class="badge bg-success">Approved</span>
+                                        {% elif photo.rejection_reason %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if photo.rejection_reason %}
+                                            <small class="text-danger">{{ photo.rejection_reason }}</small>
+                                        {% else %}
+                                            <span class="text-secondary">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-secondary">
+                                        You haven't uploaded any work photos yet.<br>
+                                        Complete a job and upload photos to build your portfolio!
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

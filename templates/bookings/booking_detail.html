@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking #{{ booking.id }} - HomeCare{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm p-4 mb-4 border-0">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Booking #{{ booking.id }}</h2>
+                    <span class="badge rounded-pill bg-primary fs-6">{{ booking.get_status_display }}</span>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <p class="text-secondary mb-1">Service</p>
+                        <h5 class="mb-3">{{ booking.service.name }}</h5>
+                        <p class="text-secondary mb-1">Date & Time</p>
+                        <h5 class="mb-3">{{ booking.scheduled_datetime|date:"l, M d, Y" }} at {{ booking.scheduled_datetime|date:"H:i" }}</h5>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-secondary mb-1">Address</p>
+                        <h5 class="mb-3">{{ booking.address }}</h5>
+                        <p class="text-secondary mb-1">Total Price</p>
+                        <h5 class="mb-3 text-primary">₹{{ booking.total_price }}</h5>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <h4>Special Instructions</h4>
+                <p class="text-secondary">{{ booking.instructions|default:"No special instructions provided." }}</p>
+            </div>
+
+            <!-- Status Tracking -->
+            <div class="card shadow-sm p-4 border-0 mb-4">
+                <h4 class="mb-4">Service Progress</h4>
+                <div class="position-relative">
+                    <div class="progress mb-4" style="height: 2px;">
+                        {% with status=booking.status %}
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {% if status == 'PENDING' %}0%{% elif status == 'CONFIRMED' %}20%{% elif status == 'ASSIGNED' %}40%{% elif status == 'ON_THE_WAY' %}60%{% elif status == 'IN_PROGRESS' %}80%{% elif status == 'COMPLETED' %}100%{% endif %};">
+                        </div>
+                        {% endwith %}
+                    </div>
+                    <div class="d-flex justify-content-between text-center small">
+                        <div><i class="bi bi-clock-history d-block mb-1"></i>Pending</div>
+                        <div><i class="bi bi-check-circle d-block mb-1"></i>Confirmed</div>
+                        <div><i class="bi bi-person-check d-block mb-1"></i>Assigned</div>
+                        <div><i class="bi bi-truck d-block mb-1"></i>On the Way</div>
+                        <div><i class="bi bi-hammer d-block mb-1"></i>In Progress</div>
+                        <div><i class="bi bi-award d-block mb-1"></i>Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            {% if booking.has_photos %}
+            {% with photo=booking.photos.first %}
+            {% if photo and user == booking.customer or user == booking.worker or user.is_staff %}
+            <div class="card shadow-sm p-4 border-0 mb-4 bg-light">
+                <h4 class="mb-4"><i class="bi bi-camera text-primary me-2"></i>Job Photos</h4>
+                
+                {% if not photo.is_approved and user == booking.worker %}
+                <div class="alert alert-warning py-2 mb-4"><i class="bi bi-hourglass-split me-1"></i> Your photos are currently pending admin approval.</div>
+                {% endif %}
+                
+                {% if not photo.is_approved and user == booking.customer %}
+                <div class="alert alert-info py-2 mb-4"><i class="bi bi-info-circle me-1"></i> The professional has uploaded photos. They are pending review before being shown in the public gallery.</div>
+                {% endif %}
+
+                <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 1rem;">
+                    <img-comparison-slider>
+                        <img slot="first" src="{{ photo.before_photo.url }}" style="width: 100%; height: 400px; object-fit: cover;" alt="Before">
+                        <img slot="second" src="{{ photo.after_photo.url }}" style="width: 100%; height: 400px; object-fit: cover;" alt="After">
+                        <div slot="first" style="position: absolute; bottom: 1rem; left: 1rem; background: rgba(0,0,0,0.6); color: white; padding: 6px 16px; border-radius: 20px; font-weight: bold;">BEFORE</div>
+                        <div slot="second" style="position: absolute; bottom: 1rem; right: 1rem; background: rgba(0,0,0,0.6); color: white; padding: 6px 16px; border-radius: 20px; font-weight: bold;">AFTER</div>
+                    </img-comparison-slider>
+                </div>
+                
+                {% if photo.caption %}
+                <p class="mt-3 text-secondary fst-italic">"{{ photo.caption }}"</p>
+                {% endif %}
+
+                {% if user == booking.customer %}
+                <div class="d-flex gap-2 mt-4">
+                    <a href="{{ photo.before_photo.url }}" download class="btn btn-outline-primary btn-sm rounded-pill fw-bold"><i class="bi bi-download me-1"></i> Before Photo</a>
+                    <a href="{{ photo.after_photo.url }}" download class="btn btn-outline-primary btn-sm rounded-pill fw-bold"><i class="bi bi-download me-1"></i> After Photo</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm p-4 border-0 mb-4 text-center">
+                <h4 class="mb-3">Professional</h4>
+                {% if booking.worker %}
+                    <i class="bi bi-person-circle fs-1 text-primary mb-2"></i>
+                    <h5>{{ booking.worker.get_full_name }}</h5>
+                    {% if user == booking.worker %}
+                        <div class="mt-3">
+                            <h6>Update Job Status</h6>
+                            <form action="{% url 'bookings:status_update' booking.pk %}" method="post">
+                                {% csrf_token %}
+                                <select name="status" class="form-select form-select-sm mb-2">
+                                    {% for value, label in booking.Status.choices %}
+                                        <option value="{{ value }}" {% if booking.status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-primary btn-sm w-100">Update Status</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <p class="text-secondary small">Your assigned professional is on the way.</p>
+                        <button class="btn btn-outline-primary btn-sm w-100 mt-2">Chat with Professional</button>
+                    {% endif %}
+                {% else %}
+                    <i class="bi bi-search fs-1 text-secondary mb-3"></i>
+                    <p class="text-secondary">We are assigning the best professional for your request.</p>
+                {% endif %}
+            </div>
+            
+            <div class="card shadow-sm p-4 border-0 text-center">
+                <h4 class="mb-3">Need Help?</h4>
+                <p class="text-secondary small">If you have any questions about your booking, contact our support.</p>
+                <a href="#" class="btn btn-dark btn-sm w-100">Contact Support</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

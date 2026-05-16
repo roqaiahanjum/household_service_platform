@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Our Work Gallery - HomeCare{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gallery-slider {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        background: #fff;
+    }
+    
+    .gallery-slider img-comparison-slider {
+        width: 100%;
+        outline: none;
+    }
+    
+    .slider-img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+    }
+
+    .slider-label {
+        position: absolute;
+        bottom: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-weight: bold;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        backdrop-filter: blur(4px);
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+    }
+
+    .label-before { left: 1rem; }
+    .label-after { right: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="display-4 font-poppins fw-bold text-dark">See Our Work</h1>
+            <p class="lead text-secondary">Real before and after results from homes across Belagavi.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-5" data-aos="fade-up" data-aos-delay="100">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label text-secondary fw-bold small">Service Type</label>
+                    <select name="service" class="form-select bg-light border-0">
+                        <option value="">All Services</option>
+                        {% for s in services %}
+                        <option value="{{ s.id }}" {% if request.GET.service == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label text-secondary fw-bold small">Location</label>
+                    <select name="area" class="form-select bg-light border-0">
+                        <option value="">All Areas in Belagavi</option>
+                        {% for a in areas %}
+                        <option value="{{ a.id }}" {% if request.GET.area == a.id|stringformat:"s" %}selected{% endif %}>{{ a.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">Filter</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div class="row g-4">
+            {% for photo in photos %}
+            <div class="col-lg-6 col-md-12" data-aos="fade-up" data-aos-delay="{% cycle '100' '200' %}">
+                <div class="gallery-slider mb-3">
+                    <img-comparison-slider>
+                        <img slot="first" src="{{ photo.before_photo.url }}" class="slider-img" alt="Before">
+                        <img slot="second" src="{{ photo.after_photo.url }}" class="slider-img" alt="After">
+                        
+                        <div slot="first" class="slider-label label-before">BEFORE</div>
+                        <div slot="second" class="slider-label label-after">AFTER</div>
+                    </img-comparison-slider>
+                </div>
+                <div class="px-2">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="fw-bold font-poppins mb-0">{{ photo.booking.service.name }}</h5>
+                        {% if photo.booking.customer.area %}
+                        <span class="badge bg-light text-dark border"><i class="bi bi-geo-alt-fill text-primary"></i> {{ photo.booking.customer.area.name }}</span>
+                        {% endif %}
+                    </div>
+                    {% if photo.caption %}
+                    <p class="text-secondary fst-italic mb-2">"{{ photo.caption }}"</p>
+                    {% endif %}
+                    <small class="text-secondary"><i class="bi bi-person-check-fill text-success"></i> Expert: {{ photo.provider.get_full_name|default:photo.provider.username }}</small>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-images display-1 text-secondary opacity-50 mb-3"></i>
+                <h4 class="font-poppins text-secondary">No photos found</h4>
+                <p class="text-secondary">Try adjusting your filters or check back later.</p>
+                <a href="{% url 'gallery' %}" class="btn btn-outline-primary rounded-pill px-4 mt-3">Clear Filters</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

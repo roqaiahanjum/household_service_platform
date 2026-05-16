@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Confirmed - HomeCare{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --swiggy-pink: #F70F79;
+    }
+    body {
+        background-color: #f8f9fa;
+    }
+    .success-card {
+        border-radius: 1.5rem;
+        border: none;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    .success-header {
+        background-color: var(--swiggy-pink);
+        color: white;
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+    .check-icon-container {
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem auto;
+        color: var(--swiggy-pink);
+        font-size: 2.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .btn-pink {
+        background-color: var(--swiggy-pink);
+        color: white;
+        border: none;
+    }
+    .btn-pink:hover {
+        background-color: #d10a66;
+        color: white;
+    }
+    .status-badge {
+        background-color: #fff3cd;
+        color: #856404;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        display: inline-block;
+        margin-top: 1rem;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-8">
+            <div class="success-card">
+                
+                <div class="success-header">
+                    <div class="check-icon-container">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <h2 class="fw-bold mb-0">Booking Confirmed!</h2>
+                    <div class="status-badge">
+                        <i class="bi bi-search me-1"></i> Finding Expert...
+                    </div>
+                </div>
+
+                <div class="p-4 px-5">
+                    <h5 class="fw-bold border-bottom pb-3 mb-4 text-center">Order Details</h5>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-secondary">Booking ID</span>
+                        <span class="fw-bold">#{{ booking.id }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-secondary">Service</span>
+                        <span class="fw-bold text-end">{{ booking.service.name }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-secondary">Date & Time</span>
+                        <span class="fw-bold text-end">{{ booking.scheduled_datetime|date:"d M Y, h:i A" }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-4 border-bottom pb-3">
+                        <span class="text-secondary">Status</span>
+                        <span class="fw-bold text-warning">{{ booking.get_status_display }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="text-dark fw-bold fs-5">Total Amount</span>
+                        <span class="text-dark fw-bold fs-5">₹{{ booking.total_price }}</span>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-pink btn-lg rounded-pill fw-bold">Go to My Bookings</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

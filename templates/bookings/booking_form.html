@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Book {{ service.name }} - HomeCare{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --swiggy-pink: #F70F79;
+    }
+    body {
+        background-color: #f8f9fa;
+    }
+    .booking-card {
+        border-radius: 1.5rem;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .service-header {
+        background: white;
+        border-radius: 1.5rem 1.5rem 0 0;
+        padding: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+    .service-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 1rem;
+        object-fit: cover;
+    }
+    .btn-pink {
+        background-color: var(--swiggy-pink);
+        color: white;
+        border: none;
+    }
+    .btn-pink:hover {
+        background-color: #d10a66;
+        color: white;
+    }
+    .form-control-lg {
+        border-radius: 0.75rem;
+        font-size: 1rem;
+    }
+    /* Custom Radio Buttons for Time & Duration */
+    .btn-check:checked + .btn-outline-primary {
+        background-color: var(--swiggy-pink);
+        border-color: var(--swiggy-pink);
+        color: white;
+    }
+    .btn-outline-primary {
+        color: #495057;
+        border-color: #dee2e6;
+        border-radius: 0.75rem;
+    }
+    .btn-outline-primary:hover {
+        background-color: #f8f9fa;
+        color: #000;
+    }
+    .total-price-bar {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0 0 1.5rem 1.5rem;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+    }
+    .radio-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+</style>
+
+<div class="container py-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="booking-card bg-white">
+                
+                <!-- Service Details -->
+                <div class="service-header d-flex align-items-center">
+                    {% if service.image %}
+                    <img src="{{ service.image.url }}" alt="{{ service.name }}" class="service-img me-3">
+                    {% else %}
+                    <div class="service-img me-3 bg-light d-flex align-items-center justify-content-center text-secondary">
+                        <i class="bi bi-tools fs-1"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h4 class="fw-bold mb-1">{{ service.name }}</h4>
+                        <p class="text-secondary mb-0">₹<span id="base-price">{{ service.price_per_unit }}</span>/hr</p>
+                    </div>
+                </div>
+
+                <!-- Booking Form -->
+                <div class="p-4">
+                    <h5 class="fw-bold mb-3">Schedule your service</h5>
+                    <form method="post" id="booking-form">
+                        {% csrf_token %}
+                        
+                        <!-- Date -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Select Date</label>
+                            {{ form.date }}
+                            {% if form.date.errors %}
+                            <div class="text-danger small mt-1">{{ form.date.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Time Slot -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Select Time</label>
+                            <div class="radio-grid">
+                                {% for radio in form.time_slot %}
+                                    <input type="radio" class="btn-check" name="{{ radio.data.name }}" id="{{ radio.id_for_label }}" value="{{ radio.data.value }}" required>
+                                    <label class="btn btn-outline-primary w-100 py-2 fs-6" for="{{ radio.id_for_label }}">
+                                        {{ radio.choice_label }}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                            {% if form.time_slot.errors %}
+                            <div class="text-danger small mt-1">{{ form.time_slot.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Duration -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Duration</label>
+                            <div class="radio-grid">
+                                {% for radio in form.duration %}
+                                    <input type="radio" class="btn-check duration-radio" name="{{ radio.data.name }}" id="{{ radio.id_for_label }}" value="{{ radio.data.value }}" required>
+                                    <label class="btn btn-outline-primary w-100 py-2 fs-6" for="{{ radio.id_for_label }}">
+                                        {{ radio.choice_label }}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                            {% if form.duration.errors %}
+                            <div class="text-danger small mt-1">{{ form.duration.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Address -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Address</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                            <div class="text-danger small mt-1">{{ form.address.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary small text-uppercase">Phone Number</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.phone_number.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Bottom Bar (Total & Confirm) -->
+                        <div class="total-price-bar d-flex justify-content-between align-items-center mt-4">
+                            <div>
+                                <p class="text-secondary small mb-0">Total Amount</p>
+                                <h3 class="fw-bold mb-0">₹<span id="total-price-display">0</span></h3>
+                            </div>
+                            <button type="submit" class="btn btn-pink btn-lg px-4 fw-bold rounded-pill shadow-sm">Confirm Booking</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Minimum date setting
+        const dateInput = document.getElementById('booking-date');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+        }
+
+        // Auto calculate price
+        const basePrice = parseFloat(document.getElementById('base-price').innerText);
+        const durationRadios = document.querySelectorAll('.duration-radio');
+        const totalDisplay = document.getElementById('total-price-display');
+
+        function updatePrice() {
+            let duration = 0;
+            durationRadios.forEach(radio => {
+                if (radio.checked) {
+                    duration = parseInt(radio.value);
+                }
+            });
+            const total = basePrice * (duration || 0);
+            totalDisplay.innerText = total;
+        }
+
+        durationRadios.forEach(radio => {
+            radio.addEventListener('change', updatePrice);
+        });
+    });
+</script>
+{% endblock %}

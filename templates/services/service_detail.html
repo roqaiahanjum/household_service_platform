@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ service.name }} - HomeCare{% endblock %}
+
+{% block extra_css %}
+<!-- AOS Animation CSS -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+    .service-hero {
+        background: linear-gradient(rgba(17, 94, 89, 0.9), rgba(13, 148, 136, 0.8)), 
+                    {% if service.image %}url('{{ service.image.url }}'){% else %}url('https://images.unsplash.com/photo-1584622650111-993a426fbf0a'){% endif %} center/cover;
+        color: white;
+        padding: 120px 0 80px;
+        position: relative;
+    }
+
+    .btn-pink {
+        background-color: #db2777;
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-pink:hover {
+        background-color: #be185d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(219, 39, 119, 0.4);
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: var(--card-shadow);
+        height: 100%;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .list-icon-green {
+        color: #10b981;
+        font-size: 1.2rem;
+        margin-right: 10px;
+    }
+
+    .list-icon-red {
+        color: #ef4444;
+        font-size: 1.2rem;
+        margin-right: 10px;
+    }
+
+    .pricing-card {
+        background: white;
+        border-radius: 16px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease;
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pricing-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-color);
+    }
+
+    .pricing-card.popular::before {
+        content: 'Most Popular';
+        position: absolute;
+        top: 15px;
+        right: -35px;
+        background: #f59e0b;
+        color: white;
+        font-size: 0.8rem;
+        font-weight: bold;
+        padding: 5px 40px;
+        transform: rotate(45deg);
+    }
+
+    .save-badge {
+        background-color: #dcfce7;
+        color: #166534;
+        font-size: 0.85rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 10px;
+    }
+
+    .sticky-mobile-cta {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: white;
+        padding: 15px;
+        box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    @media (max-width: 768px) {
+        .sticky-mobile-cta {
+            display: block;
+        }
+        body {
+            padding-bottom: 80px; /* Space for sticky button */
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="service-hero">
+    <div class="container" data-aos="fade-up">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-white text-primary mb-3 px-3 py-2 rounded-pill fs-6">{{ service.category.name }}</span>
+                <h1 class="display-3 fw-bold mb-3">{{ service.name }}</h1>
+                <p class="lead fs-4 opacity-75 mb-4">Starting from ₹{{ service.price_per_unit }} per {{ service.unit_name }}</p>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="d-flex me-3">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <i class="bi bi-star-fill text-warning"></i>
+                    </div>
+                    <span>4.8 ({{ reviews|length|default:150 }}+ Reviews)</span>
+                </div>
+                <a href="#book-now" class="btn btn-pink btn-lg px-5 py-3 rounded-pill fw-bold">Book Now</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- Main Content Column -->
+        <div class="col-lg-8">
+            
+            <!-- About Section -->
+            <section class="mb-5" data-aos="fade-up">
+                <h3 class="fw-bold mb-4">About This Service</h3>
+                <div class="text-secondary fs-5">
+                    <p>{{ service.description }}</p>
+                    <p>Our professionals come fully equipped with industry-standard tools and eco-friendly products to ensure the best results. We guarantee a seamless experience from the moment you book until the job is completed to your absolute satisfaction.</p>
+                    <p>Every expert assigned to your home undergoes a rigorous background check, skill assessment, and continuous training to maintain our 4.8-star quality standard.</p>
+                </div>
+            </section>
+
+            <!-- What's Included / Not Included -->
+            <section class="mb-5">
+                <div class="row g-4">
+                    <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+                        <div class="info-card bg-light">
+                            <h4 class="fw-bold mb-4">What's Included</h4>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-3 d-flex align-items-start"><i class="bi bi-check-circle-fill list-icon-green"></i> <span class="text-secondary">Professional grade equipment and supplies</span></li>
+                                <li class="mb-3 d-flex align-items-start"><i class="bi bi-check-circle-fill list-icon-green"></i> <span class="text-secondary">Thorough background-verified expert</span></li>
+                                <li class="mb-3 d-flex align-items-start"><i class="bi bi-check-circle-fill list-icon-green"></i> <span class="text-secondary">On-time arrival guarantee</span></li>
+                                <li class="mb-0 d-flex align-items-start"><i class="bi bi-check-circle-fill list-icon-green"></i> <span class="text-secondary">Post-service cleanup</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
+                        <div class="info-card border border-danger border-opacity-10">
+                            <h4 class="fw-bold mb-4">What's NOT Included</h4>
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-3 d-flex align-items-start"><i class="bi bi-x-circle-fill list-icon-red"></i> <span class="text-secondary">Deep stain removal (requires specialized service)</span></li>
+                                <li class="mb-3 d-flex align-items-start"><i class="bi bi-x-circle-fill list-icon-red"></i> <span class="text-secondary">Handling of hazardous materials</span></li>
+                                <li class="mb-0 d-flex align-items-start"><i class="bi bi-x-circle-fill list-icon-red"></i> <span class="text-secondary">Lifting heavy furniture above 20kg</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How It Works -->
+            <section class="mb-5" data-aos="fade-up">
+                <h3 class="fw-bold mb-4">How It Works</h3>
+                <div class="row g-4">
+                    <div class="col-md-4 text-center">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">1</div>
+                        <h5 class="fw-bold">Pick a Time</h5>
+                        <p class="text-secondary small">Select a date and time that fits your schedule perfectly.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">2</div>
+                        <h5 class="fw-bold">Expert Arrives</h5>
+                        <p class="text-secondary small">A verified professional arrives fully equipped to do the job.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">3</div>
+                        <h5 class="fw-bold">Relax & Enjoy</h5>
+                        <p class="text-secondary small">Pay securely after the job is completed to your satisfaction.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer Reviews -->
+            <section class="mb-5" data-aos="fade-up">
+                <h3 class="fw-bold mb-4">Customer Reviews</h3>
+                <div class="row g-4">
+                    {% for review in reviews %}
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary text-white d-flex align-items-center justify-content-center rounded-circle fw-bold fs-5 me-3" style="width: 40px; height: 40px;">
+                                        {{ review.profile_initial }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">{{ review.customer_name }}</h6>
+                                        <div class="text-warning small">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-secondary fst-italic small mb-0">"{{ review.text }}"</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-secondary">
+                        <p>No reviews for this service yet. Be the first to book and review!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            
+            <!-- See Our Work Section -->
+            {% if work_photos %}
+            <section class="mb-5" data-aos="fade-up">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold mb-0">See Our Work</h3>
+                    <span class="badge bg-success rounded-pill px-3 py-2 fs-6">{{ work_photos.count }} verified work photos</span>
+                </div>
+                <div class="row g-4">
+                    {% for photo in work_photos %}
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 1rem;">
+                            <img-comparison-slider>
+                                <img slot="first" src="{{ photo.before_photo.url }}" style="width: 100%; height: 250px; object-fit: cover;" alt="Before">
+                                <img slot="second" src="{{ photo.after_photo.url }}" style="width: 100%; height: 250px; object-fit: cover;" alt="After">
+                                <div slot="first" style="position: absolute; bottom: 1rem; left: 1rem; background: rgba(0,0,0,0.6); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">BEFORE</div>
+                                <div slot="second" style="position: absolute; bottom: 1rem; right: 1rem; background: rgba(0,0,0,0.6); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">AFTER</div>
+                            </img-comparison-slider>
+                            <div class="p-3">
+                                {% if photo.caption %}
+                                <p class="text-secondary fst-italic small mb-2">"{{ photo.caption }}"</p>
+                                {% endif %}
+                                <div class="d-flex justify-content-between align-items-center small text-secondary">
+                                    <span><i class="bi bi-person-check-fill text-success"></i> Expert: {{ photo.provider.get_full_name|default:photo.provider.username }}</span>
+                                    {% if photo.booking.customer.area %}
+                                    <span><i class="bi bi-geo-alt-fill text-primary"></i> {{ photo.booking.customer.area.name }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-4">
+                    <a href="{% url 'gallery' %}?service={{ service.id }}" class="btn btn-outline-primary rounded-pill px-4">View All Photos for this Service</a>
+                </div>
+            </section>
+            {% endif %}
+
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="col-lg-4">
+            
+            <!-- Pricing Packages -->
+            <div class="sticky-top" style="top: 100px;">
+                <h4 class="fw-bold mb-4" id="book-now">Select a Package</h4>
+                
+                <div class="d-grid gap-3">
+                    <div class="pricing-card" data-aos="zoom-in" data-aos-delay="100">
+                        <h5 class="fw-bold text-secondary">1 Hour</h5>
+                        <h2 class="fw-bold text-primary mb-0">₹99</h2>
+                        <a href="{% url 'bookings:booking_create' slug=service.slug %}" class="btn btn-outline-primary w-100 mt-3 rounded-pill fw-bold">Select</a>
+                    </div>
+                    
+                    <div class="pricing-card popular shadow" data-aos="zoom-in" data-aos-delay="200" style="border-color: var(--primary-color);">
+                        <h5 class="fw-bold text-secondary">2 Hours</h5>
+                        <h2 class="fw-bold text-primary mb-0">₹189</h2>
+                        <span class="save-badge">Save ₹9</span>
+                        <a href="{% url 'bookings:booking_create' slug=service.slug %}" class="btn btn-primary w-100 mt-3 rounded-pill fw-bold">Select</a>
+                    </div>
+                    
+                    <div class="pricing-card" data-aos="zoom-in" data-aos-delay="300">
+                        <h5 class="fw-bold text-secondary">3 Hours</h5>
+                        <h2 class="fw-bold text-primary mb-0">₹269</h2>
+                        <span class="save-badge">Save ₹28</span>
+                        <a href="{% url 'bookings:booking_create' slug=service.slug %}" class="btn btn-outline-primary w-100 mt-3 rounded-pill fw-bold">Select</a>
+                    </div>
+
+                    <div class="pricing-card" data-aos="zoom-in" data-aos-delay="400">
+                        <h5 class="fw-bold text-secondary">4 Hours</h5>
+                        <h2 class="fw-bold text-primary mb-0">₹349</h2>
+                        <span class="save-badge">Save ₹47</span>
+                        <a href="{% url 'bookings:booking_create' slug=service.slug %}" class="btn btn-outline-primary w-100 mt-3 rounded-pill fw-bold">Select</a>
+                    </div>
+                </div>
+
+                <!-- Why Book With Us (Sidebar) -->
+                <div class="mt-5" data-aos="fade-up">
+                    <h5 class="fw-bold mb-3">Why Book With Us?</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-shield-check text-primary fs-3 me-3"></i>
+                        <div>
+                            <h6 class="mb-0 fw-bold">Verified Pros</h6>
+                            <span class="text-secondary small">Background checked & trained</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-cash text-primary fs-3 me-3"></i>
+                        <div>
+                            <h6 class="mb-0 fw-bold">Transparent Pricing</h6>
+                            <span class="text-secondary small">No hidden fees ever</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-telephone text-primary fs-3 me-3"></i>
+                        <div>
+                            <h6 class="mb-0 fw-bold">24/7 Support</h6>
+                            <span class="text-secondary small">We're always here to help</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Related Services Section -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <h3 class="fw-bold mb-4 text-center" data-aos="fade-up">Similar Services in {{ service.category.name }}</h3>
+        <div class="row g-4 justify-content-center">
+            {% for related in related_services %}
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="{% cycle '100' '200' '300' %}">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    {% if related.image %}
+                        <img src="{{ related.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ related.name }}">
+                    {% else %}
+                        <div class="bg-primary text-white d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="bi bi-tools display-1"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="mb-0 fw-bold">{{ related.name }}</h5>
+                        </div>
+                        <p class="text-primary fw-bold mb-3">₹{{ related.price_per_unit }}/{{ related.unit_name }}</p>
+                        <a href="{% url 'services:service_detail' slug=related.slug %}" class="btn btn-outline-dark w-100 rounded-pill mt-auto">View Service</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-secondary">
+                <p>No related services found.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Mobile Sticky CTA -->
+<div class="sticky-mobile-cta">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <div class="text-secondary small">Starting at</div>
+            <div class="fw-bold fs-5 text-primary">₹{{ service.price_per_unit }}</div>
+        </div>
+        <a href="#book-now" class="btn btn-pink px-4 py-2 rounded-pill fw-bold">Book Now</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- AOS Animation JS -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 50
+        });
+        
+        // Smooth scroll for Book Now buttons
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

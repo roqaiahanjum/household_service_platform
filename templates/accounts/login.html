@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login - HomeCare{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card p-4 shadow-lg border-0">
+                    <h2 class="text-center mb-4">Welcome Back</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                        </div>
+                    </form>
+                    <hr class="my-4">
+                    <p class="text-center">Don't have an account?</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'accounts:customer_signup' %}" class="btn btn-outline-primary btn-sm">Join as Customer</a>
+                        <a href="{% url 'accounts:worker_signup' %}" class="btn btn-outline-dark btn-sm">Join as Professional</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
