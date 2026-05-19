@@ -6,6 +6,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from core.views import HomeView, AboutView, GalleryView
+from accounts.views import assign_worker_view
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -30,6 +31,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('services/', include('services.urls')),
     path('bookings/', include('bookings.urls')),
+    path('bookings/admin/assign/<int:booking_id>/', assign_worker_view, name='assign_worker'),
     path('payments/', include('payments.urls')),
     
     # API Documentation

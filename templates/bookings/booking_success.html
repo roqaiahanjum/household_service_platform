@@ -99,8 +99,15 @@
                         <span class="text-dark fw-bold fs-5">₹{{ booking.total_price }}</span>
                     </div>
 
-                    <div class="d-grid mt-4">
-                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-pink btn-lg rounded-pill fw-bold">Go to My Bookings</a>
+                    <div class="d-grid mt-4 gap-2">
+                        {% if booking.payment_status != 'PAID' %}
+                        <button id="pay-now-btn" class="btn btn-lg rounded-pill fw-bold text-white d-flex align-items-center justify-content-center" style="background-color: #E91E8C;">
+                            <span>Pay Now ₹{{ booking.total_price }}</span>
+                            <span class="ms-2 badge bg-white text-dark" style="font-size: 0.7rem;">Razorpay</span>
+                            <div class="spinner-border spinner-border-sm text-light ms-2 d-none" id="pay-spinner" role="status"></div>
+                        </button>
+                        {% endif %}
+                        <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary btn-lg rounded-pill fw-bold">Go to My Bookings</a>
                     </div>
                 </div>
 
@@ -108,4 +115,91 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const payBtn = document.getElementById('pay-now-btn');
+        if (!payBtn) return;
+        
+        payBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const spinner = document.getElementById('pay-spinner');
+            payBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            
+            fetch("{% url 'payments:init_payment' booking.id %}")
+                .then(response => response.json())
+                .then(data => {
+                    spinner.classList.add('d-none');
+                    payBtn.disabled = false;
+                    
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    
+                    var options = {
+                        "key": data.razorpay_key_id,
+                        "amount": data.razorpay_amount,
+                        "currency": "INR",
+                        "name": "Home Care",
+                        "description": "Secure payment for booking #{{ booking.id }}",
+                        "order_id": data.razorpay_order_id,
+                        "handler": function (response){
+                            document.getElementById('global-loader')?.classList.add('active');
+                            fetch("{% url 'payments:verify_payment' %}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': '{{ csrf_token }}'
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(verifyData => {
+                                if (verifyData.status === 'success') {
+                                    window.location.href = "{% url 'payments:payment_success' %}?booking_id={{ booking.id }}&payment_id=" + response.razorpay_payment_id;
+                                } else {
+                                    window.location.href = "{% url 'payments:payment_failed' %}?booking_id={{ booking.id }}";
+                                }
+                            })
+                            .catch(err => {
+                                window.location.href = "{% url 'payments:payment_failed' %}?booking_id={{ booking.id }}";
+                            });
+                        },
+                        "prefill": {
+                            "name": data.customer_name,
+                            "email": data.customer_email,
+                            "contact": data.customer_phone
+                        },
+                        "theme": {
+                            "color": "#E91E8C"
+                        },
+                        "modal": {
+                            "ondismiss": function(){
+                                // optionally handle dismiss
+                            }
+                        }
+                    };
+                    var rzp = new Razorpay(options);
+                    rzp.on('payment.failed', function (response){
+                        alert("Payment Failed: " + response.error.description);
+                    });
+                    rzp.open();
+                })
+                .catch(err => {
+                    spinner.classList.add('d-none');
+                    payBtn.disabled = false;
+                    alert("Error initiating payment. Please try again.");
+                });
+        });
+    });
+</script>
 {% endblock %}
